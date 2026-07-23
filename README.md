@@ -39,7 +39,7 @@ TLF is a **non-intrusive Sidecar middleware** that enforces logical self-consist
 
 ### Installation
 ```bash
-git clone https://github.com/[YuzheChen-png 玉哲陈平]/TLF-Research.git
+git clone https://github.com/YuzheChen-png/TLF-Research.git
 cd TLF-Research
 pip install -r requirements.txt
 ```
