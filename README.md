@@ -52,6 +52,36 @@ cd TLF-Research
 pip install -r requirements.txt
 ```
 
+### CPU-only quick run (low-resource)
+If you don't have a GPU, you can run a small smoke-test locally on CPU. This is much slower but useful for validating functionality.
+
+```bash
+# create a virtualenv and install minimal deps
+python3 -m venv .venv
+source .venv/bin/activate
+pip install --upgrade pip
+pip install -r requirements.txt
+
+# prepare a tiny test dataset (eval/README also documents this)
+mkdir -p data eval/results
+cat > data/financial_test_suite.jsonl <<'JSONL'
+{"input": "Example 1 text", "references": "Answer 1"}
+{"input": "Example 2 text", "references": "Answer 2"}
+JSONL
+
+# run eval entrypoint on CPU with a single worker
+python -m eval.run_eval \
+  --dataset data/financial_test_suite.jsonl \
+  --model gpt4-mock \
+  --output eval/results/test.run1.jsonl \
+  --num-workers 1
+
+# inspect results
+cat eval/results/test.run1.jsonl || true
+```
+
+> Note: CPU runs may be significantly slower; for development prefer small datasets and --num-workers 1 to reduce memory/CPU contention.
+
 ---
 
 ## Notes & Suggestions (added)
