@@ -1,0 +1,42 @@
+# VCS
+.git
+.gitignore
+
+# Python artifacts
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.egg-info/
+dist/
+build/
+
+# Virtual environments
+.venv/
+env/
+venv/
+ENV/
+
+# Local data, outputs and secrets
+data/
+eval/results/
+*.sqlite3
+*.db
+.env
+.env.* 
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Test and cache
+.pytest_cache/
+.tox/
+
+# Node / other
+node_modules/
+
+# Large files / any other directories you don't want in the image
+# add project-specific folders here
