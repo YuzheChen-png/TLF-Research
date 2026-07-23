@@ -35,39 +35,14 @@ TLF is a **non-intrusive Sidecar middleware** that enforces logical self-consist
 ### Prerequisites
 - Python 3.10
 - CUDA 12.1
-- 24GB+ GPU memory (recommended)
-
-> Note: The above are recommended requirements for running large models and the full TLF pipeline. For smaller/experimental runs, document alternative CPU-only or smaller-GPU instructions below.
+- 24GB+ GPU memory
 
 ### Installation
 ```bash
-git clone https://github.com/YuzheChen-png/TLF-Research.git
+git clone https://github.com/[YuzheChen-png 玉哲陈平]/TLF-Research.git
 cd TLF-Research
 pip install -r requirements.txt
 ```
-
-### Run with Docker (optional)
-
-Build the image:
-```bash
-docker build -t tlf-research:latest .
-```
-
-Run a CPU-only smoke test (mounts local eval/results for outputs):
-```bash
-docker run --rm -v "$(pwd)/eval/results:/app/eval/results" tlf-research:latest \
-  bash -lc "python -m eval.run_eval --dataset data/financial_test_suite.jsonl --model gpt4-mock --output eval/results/test.run1.jsonl"
-```
-
-Run with GPU support (requires NVIDIA Container Toolkit / Docker with --gpus support):
-```bash
-docker run --gpus all --rm -v "$(pwd)/eval/results:/app/eval/results" tlf-research:latest \
-  bash -lc "python -m eval.run_eval --dataset data/financial_test_suite.jsonl --model gpt4-base+tlf --output eval/results/tlf.run1.jsonl"
-```
-
-Notes:
-- For GPU runs ensure the host has the NVIDIA Container Toolkit installed (or other runtime that exposes GPUs to containers).
-- The Dockerfile installs dependencies from `requirements.txt` if present; pin versions in that file for reproducible builds.
 
 ---
 
@@ -90,8 +65,7 @@ These suggestions are intended to improve clarity, reproducibility, and usabilit
   - For the Latency entry, state the measurement details: hardware used (GPU model), whether latency is per-request or per-document, whether it's median/mean/95th-percentile, and whether it includes model inference time or only TLF overhead.
 
 - System requirements
-  - Mark requirements as "Recommended" vs "Minimum". If possible, provide alternative instructions for lower-resource setups (e.g., CPU-only, single-GPU with 12GB) or a Docker image with pinned dependencies.
-  - If CUDA dependency is optional for certain components, make that explicit and provide `pip` extras or an environment.yml for conda.
+  - Mark requirements as "Recommended" vs "Minimum". If possible, provide alternative instructions for lower-resource setups (e.g., CPU-only, single-GPU with 12GB) or a Docker image with pinned de
 
 - Installation / developer experience
   - Consider adding a Dockerfile and a one-line docker run example to make setup easier and more deterministic.
