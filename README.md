@@ -46,6 +46,29 @@ cd TLF-Research
 pip install -r requirements.txt
 ```
 
+### Run with Docker (optional)
+
+Build the image:
+```bash
+docker build -t tlf-research:latest .
+```
+
+Run a CPU-only smoke test (mounts local eval/results for outputs):
+```bash
+docker run --rm -v "$(pwd)/eval/results:/app/eval/results" tlf-research:latest \
+  bash -lc "python -m eval.run_eval --dataset data/financial_test_suite.jsonl --model gpt4-mock --output eval/results/test.run1.jsonl"
+```
+
+Run with GPU support (requires NVIDIA Container Toolkit / Docker with --gpus support):
+```bash
+docker run --gpus all --rm -v "$(pwd)/eval/results:/app/eval/results" tlf-research:latest \
+  bash -lc "python -m eval.run_eval --dataset data/financial_test_suite.jsonl --model gpt4-base+tlf --output eval/results/tlf.run1.jsonl"
+```
+
+Notes:
+- For GPU runs ensure the host has the NVIDIA Container Toolkit installed (or other runtime that exposes GPUs to containers).
+- The Dockerfile installs dependencies from `requirements.txt` if present; pin versions in that file for reproducible builds.
+
 ---
 
 ## Notes & Suggestions (added)
