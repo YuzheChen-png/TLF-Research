@@ -1,58 +1,70 @@
-# TLF (Tensor Logic Firewall)
+# TLF (Tensor Logic Firewall) — Logical Self-Consistency Middleware
 
-**Logical Self-Consistency Middleware for LLM Multi-Document Reasoning**
-
----
-
-## What is TLF?
-
-TLF is a **non-intrusive Sidecar middleware** that enforces logical self-consistency in LLM outputs during multi-document reasoning tasks.
-
-**The Problem:** When LLMs process multiple conflicting documents (e.g., financial reports with inconsistent revenue numbers), they often:
-- Randomly pick one value without resolution
-- Produce logically contradictory statements
-- Hallucinate facts that don't exist in any source
-
-**The Solution:** TLF intercepts the reasoning pipeline and applies three constraint engines:
-1. **State Mapper** → Anchors information into high-dimensional tensors
-2. **Logic Enforcer** → Applies first-order predicate logic to prune contradictions
-3. **MDU (Multi-Document Unification)** → Resolves conflicts via minimum-entropy merging
+Logical Self-Consistency Middleware for LLM multi-document reasoning. TLF intercepts LLM outputs and enforces logical consistency across multiple source documents using three complementary engines: State Mapper, Logic Enforcer, and MDU (Multi-Document Unification).
 
 ---
 
-## Key Results (on Financial Test Suite)
+## TL;DR
+TLF reduces logical errors and hallucinations when LLMs reason over multiple documents, while adding limited latency. See the Evaluation section for reproducibility details.
 
-| Metric | Base LLM | LLM + TLF | Improvement |
-|:---|:---:|:---:|:---:|
-| Logical Accuracy | 68.2% | **92.3%** | **+35.3%** |
-| Hallucination Rate | 22.1% | **6.2%** | **-72.0%** |
-| Latency Overhead | — | **≤180ms** | — |
+- Key idea: map facts into a state tensor, enforce first-order constraints, and resolve conflicting evidence with minimum-entropy merging.
+- Use-case: financial report synthesis, multi-document QA, knowledge consolidation.
+
+## Badges
+[Add badges: license, python, CI, code-quality, docker/pypi when available]
+
+## Features
+- Enforces first-order logic constraints on LLM outputs
+- Anchors evidence into a tensorized state (State Mapper)
+- Prunes contradictions with a Logic Enforcer
+- Resolves conflicts with MDU (minimum-entropy merge)
+- Low overhead: typical added latency ≤ 180ms (see Evaluation)
+
+## Table of Contents
+- Quick Start
+- Installation
+- CPU-only quick run
+- Evaluation (reproducibility)
+- Metrics & definitions
+- System Requirements
+- Examples
+- Contributing
+- License
+- Contact
 
 ---
 
 ## Quick Start
 
-### Prerequisites
+Minimal smoke test (one-liner):
+```bash
+python -m eval.run_eval --dataset data/financial_test_suite.jsonl --model gpt4-mock --output eval/results/test.run1.jsonl --num-workers 1
+```
 
+See Installation for environment setup and Docker usage.
+
+## Installation
 Minimum:
-- Python 3.8
-- 8GB RAM (CPU-only)
+- Python 3.8, 8GB RAM (CPU-only)
 
 Recommended:
-- Python 3.10
-- CUDA 12.1
-- 24GB+ GPU memory
+- Python 3.10+, CUDA 12.1, 24GB+ GPU
 
-> Note: The "Recommended" configuration is for running large models and the full TLF pipeline. For smaller or experimental runs use the Minimum config or the CPU-only instructions in the eval/ README.
-
-### Installation
+Clone and install:
 ```bash
 git clone https://github.com/YuzheChen-png/TLF-Research.git
 cd TLF-Research
+python3 -m venv .venv
+source .venv/bin/activate
+pip install --upgrade pip
 pip install -r requirements.txt
 ```
 
-### CPU-only quick run (low-resource)
+Docker (recommended for reproducibility):
+- See Dockerfile in repo (or run the quick docker build and run below).
+
+## CPU-only quick run (smoke test)
+
 If you don't have a GPU, you can run a small smoke-test locally on CPU. This is much slower but useful for validating functionality.
 
 ```bash
@@ -84,45 +96,46 @@ cat eval/results/test.run1.jsonl || true
 
 ---
 
-## Notes & Suggestions (added)
+## Evaluation (Reproducibility)
+Important: include these items in this section in the repo or the paper's appendix.
 
-These suggestions are intended to improve clarity, reproducibility, and usability of the README and project.
+- Dataset
+  - Name: Financial Test Suite (link: <URL or include file>)
+  - Version: vX.Y (or commit)
+  - Format: JSONL with fields: input, references, metadata
+  - Number of examples: N (specify)
+  - Splits: train/val/test (if relevant) — list sizes
+- Protocol
+  - Number of independent runs averaged: M
+  - Random seed(s): [list or range]
+  - Prompt templates: include full prompt text (exact tokens)
+  - Model(s) and exact versions: e.g., gpt-4.1-finetune-2026-06-01 or open-source model + repo commit
+  - Temperature, max_tokens, top_p, beam settings
+  - Evaluation script and metrics code: path to `eval/` folder and evaluation script(s)
+- Hardware & latency
+  - Hardware used for latency (e.g., NVIDIA A100 80GB, CPU model)
+  - Latency definition: per-request / per-document; median and 95th-percentile; whether it includes model inference time
+- Human annotation (if used)
+  - Number of raters, annotation interface, inter-annotator agreement (Cohen's Kappa / Fleiss' Kappa)
+  - Rater instructions and examples
 
-- Fixes applied
-  - Corrected the git clone URL to a standard form (removed bracketed characters that would break cloning).
+## Metrics & Definitions
+- Logical Accuracy: definition (automatic comparator vs. human judge). Exact scoring rubric.
+- Hallucination Rate: definition, how detected (source-matching rules), and whether partial credit is used.
+- Statistical reporting: include mean ± std or 95% CI; report p-values for comparisons where appropriate.
 
-- Reproducibility / evaluation details (please add)
-  - Specify the Financial Test Suite used (dataset name, source, version) and provide a link or include the dataset in the repo or submodule.
-  - Document the evaluation protocol: number of examples, train/validation/test splits (if any), random seeds, how many runs were averaged, and the metric definitions.
-  - Provide the exact prompts, model names/versions, and hyperparameters used for both the base LLM and the LLM+TLF runs.
-  - Add scripts or a reproducibility checklist (e.g., `eval/run_evaluation.sh` or a `notebooks/eval.ipynb`) so others can reproduce the reported numbers.
+## Examples
+- Add sample inputs and outputs (before/after TLF) in `examples/` for quick inspection.
 
-- Metrics & claims
-  - Clarify how "Logical Accuracy" and "Hallucination Rate" are computed (automatic metrics vs. human annotation). If human raters were used, report inter-annotator agreement and number of raters.
-  - Add confidence intervals or standard deviations for reported improvements to indicate statistical significance.
-  - For the Latency entry, state the measurement details: hardware used (GPU model), whether latency is per-request or per-document, whether it's median/mean/95th-percentile, and whether it includes model inference time or only TLF overhead.
+## Developer / Contributing
+- Include CONTRIBUTING.md with run instructions and a reproducibility checklist.
+- Provide a `scripts/run_evaluation.sh` wrapper to reproduce table results.
+- Add tests and a small smoke test in CI.
 
-- System requirements
-  - Mark requirements as "Recommended" vs "Minimum". If possible, provide alternative instructions for lower-resource setups (e.g., CPU-only, single-GPU with 12GB) or a Docker image with pinned de
+## License
+This repository is released under the MIT License. See LICENSE for details.
 
-- Installation / developer experience
-  - Consider adding a Dockerfile and a one-line docker run example to make setup easier and more deterministic.
-  - Add a quick smoke test command (e.g., `python -m tlf.examples.simple_run`) so users can verify installation.
-
-- Documentation & transparency
-  - Add a short "Evaluation" section describing experiment logs, where to find raw outputs, and how to reproduce the tables.
-  - Add citations or references to related work and any custom algorithms (e.g., the minimum-entropy merging approach) so readers can follow up.
-
-- Licensing & contact
-  - Include a LICENSE file and a short "Contact / Contributing" section in the README with contributor guidelines and how to reproduce results or report issues.
-
-- Small editorial suggestions
-  - Consider renaming the project header to include the short form and the full form together: "TLF (Tensor Logic Firewall) — Logical Self-Consistency Middleware" for clarity.
-  - Expand the three-engine descriptions by one sentence each to give readers an intuition about how they work and why they help (without exposing internal proprietary details).
-
-If you want, I can:
-- Add a short "Evaluation" subsection with templates for the dataset and evaluation protocol.
-- Create a reproducibility script skeleton (e.g., `scripts/run_evaluation.sh`) and add it to the repo.
-- Add a Dockerfile and smoke-test example.
-
-告诉我你接下来希望我做哪一项，我会继续。（我已经将 README 更新并包含了上述建议。）
+## Contact
+- Maintainer: YuzheChen-png (GitHub)
+- Email: email@example.com
+- Issues: https://github.com/YuzheChen-png/TLF-Research/issues
