@@ -26,5 +26,19 @@ jobs:
         python -m pip install --upgrade pip
         pip install -r requirements.txt
     - name: Run Tests
-      run: |
-        python manage.py test
+  run: |
+    # 如果仓库根目录有 manage.py，直接运行；否则查找第一级子目录下的 manage.py 并运行第一个找到的
+    if [ -f manage.py ]; then
+      echo "Using ./manage.py"
+      python manage.py test
+    else
+      mg=$(find . -maxdepth 4 -type f -name manage.py | head -n 1)
+      if [ -z "$mg" ]; then
+        echo "Error: manage.py not found in repo (searched up to depth 4)"
+        ls -la
+        ls -laR | sed -n '1,200p'
+        exit 1
+      fi
+      echo "Found manage.py at: $mg"
+      python "$mg" test
+    fi
