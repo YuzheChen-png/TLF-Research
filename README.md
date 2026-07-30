@@ -137,5 +137,5 @@ This repository is released under the MIT License. See LICENSE for details.
 
 ## Contact
 - Maintainer: YuzheChen-png (GitHub)
-- Email: email@example.com
+- Email: 3807171445@qq.com
 - Issues: https://github.com/YuzheChen-png/TLF-Research/issues
